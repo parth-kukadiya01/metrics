@@ -10,11 +10,13 @@ class DimDate(Base):
 
     metrics = relationship("FactAdMetricsDaily", back_populates="date")
 
+
 class DimRegion(Base):
     __tablename__ = "dim_region"
     region_id = Column(Integer, primary_key=True)
     region_name = Column(String(100), nullable=False)
     metrics = relationship("FactAdMetricsDaily", back_populates="region")
+
 
 class DimAgeGroup(Base):
     __tablename__ = "dim_age_group"
@@ -22,11 +24,13 @@ class DimAgeGroup(Base):
     age_range = Column(String(20), nullable=False)
     metrics = relationship("FactAdMetricsDaily", back_populates="age_group")
 
+
 class DimGender(Base):
     __tablename__ = "dim_gender"
     gender_id = Column(Integer, primary_key=True)
     gender_name = Column(String(20), nullable=False)
     metrics = relationship("FactAdMetricsDaily", back_populates="gender")
+
 
 class DimPlatform(Base):
     __tablename__ = "dim_platform"
@@ -34,17 +38,20 @@ class DimPlatform(Base):
     platform_name = Column(String(50), nullable=False)
     metrics = relationship("FactAdMetricsDaily", back_populates="platform")
 
+
 class DimPlacement(Base):
     __tablename__ = "dim_placement"
     placement_id = Column(Integer, primary_key=True)
     placement_name = Column(String(100), nullable=False)
     metrics = relationship("FactAdMetricsDaily", back_populates="placement")
 
+
 class DimDeviceType(Base):
     __tablename__ = "dim_device_type"
     device_type_id = Column(Integer, primary_key=True)
     device_type_name = Column(String(50), nullable=False)
     metrics = relationship("FactAdMetricsDaily", back_populates="device_type")
+
 
 class FactAdMetricsDaily(Base):
     __tablename__ = "fact_ad_metrics_daily"

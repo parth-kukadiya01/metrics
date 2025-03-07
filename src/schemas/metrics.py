@@ -1,10 +1,17 @@
 from typing import Optional
-from fastapi import Query, HTTPException, Depends
+from fastapi import Query, HTTPException
 from sqlalchemy.orm import Session
-from core.database import get_db
-from pydantic import BaseModel, model_validator
-from logics.logic import get_age, get_device_type, get_region, get_gender, get_placement, get_platform
+from pydantic import BaseModel
+from logics.logic import (
+    get_age,
+    get_device_type,
+    get_region,
+    get_gender,
+    get_placement,
+    get_platform,
+)
 from datetime import datetime
+
 
 class MetricsValidation(BaseModel):
     start_date: Optional[str] = None
@@ -22,16 +29,26 @@ class MetricsValidation(BaseModel):
 
     def validate_fields(self, db: Session):
         try:
-            start_date_obj = datetime.strptime(self.start_date, "%Y-%m-%d").date() if self.start_date else None
-            end_date_obj = datetime.strptime(self.end_date, "%Y-%m-%d").date() if self.end_date else None
+            start_date_obj = (
+                datetime.strptime(self.start_date, "%Y-%m-%d").date()
+                if self.start_date
+                else None
+            )
+            end_date_obj = (
+                datetime.strptime(self.end_date, "%Y-%m-%d").date()
+                if self.end_date
+                else None
+            )
         except ValueError:
-            raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD.")
+            raise HTTPException(
+                status_code=400, detail="Invalid date format. Use YYYY-MM-DD."
+            )
 
         if start_date_obj and end_date_obj and start_date_obj > end_date_obj:
-            raise HTTPException(status_code=400, detail="Start date must be before end date.")
+            raise HTTPException(
+                status_code=400, detail="Start date must be before end date."
+            )
 
-        # Validate Foreign Key references
-        print("self.gender_id ::", self.gender_id)
         if self.region_id is not None:
             get_region(self.region_id, db)
         if self.platform_id is not None:
@@ -44,7 +61,6 @@ class MetricsValidation(BaseModel):
             get_age(self.age_id, db)
         if self.gender_id is not None:
             get_gender(self.gender_id, db)
-
 
 
 class AdMetricsResponse(BaseModel):
