@@ -15,7 +15,7 @@ PostgreSQL (if using database features)
 Virtual Environment (recommended)
 
 Clone the Repository
-git clone https://github.com/your-repo/advertising-metrics-api.git
+git clone https://github.com/parth-kukadiya01/metrics.git
 cd advertising-metrics-api
 
 Create a Virtual Environment & Install Dependencies
