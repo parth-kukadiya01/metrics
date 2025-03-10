@@ -1,9 +1,9 @@
 from sqlalchemy.orm import Session
-from models.metrics import *
+from src.models.metrics import *
 from fastapi import HTTPException
 from datetime import datetime
 from typing import Optional
-from schemas.metrics import AdMetricsResponse
+from src.schemas.metrics import AdMetricsResponse
 import traceback
 
 def get_date_id(db: Session, date_value: datetime.date) -> int:
@@ -35,8 +35,7 @@ def fetch_ad_metrics(
 
         if start_date:
             try:
-                start_date_obj = datetime.strptime(start_date, "%Y-%m-%d").date()
-                start_date_id = get_date_id(db, start_date_obj)
+                start_date_id = get_date_id(db, start_date)
                 query = query.filter(FactAdMetricsDaily.date_id >= start_date_id)
             except ValueError:
                 raise HTTPException(
@@ -46,8 +45,7 @@ def fetch_ad_metrics(
 
         if end_date:
             try:
-                end_date_obj = datetime.strptime(end_date, "%Y-%m-%d").date()
-                end_date_id = get_date_id(db, end_date_obj)
+                end_date_id = get_date_id(db, end_date)
                 query = query.filter(FactAdMetricsDaily.date_id <= end_date_id)
             except ValueError:
                 raise HTTPException(
@@ -55,7 +53,7 @@ def fetch_ad_metrics(
                     detail=f"Invalid end date format: '{end_date}'. Please use YYYY-MM-DD (e.g., 2025-03-07)."
                 )
 
-        if start_date and end_date and start_date_obj > end_date_obj:
+        if start_date and end_date and start_date > end_date:
             raise HTTPException(
                 status_code=400,
                 detail=f"Invalid date range: Start date ({start_date}) must be before end date ({end_date})."

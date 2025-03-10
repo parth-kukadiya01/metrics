@@ -1,6 +1,6 @@
 from fastapi import FastAPI
-from logs.logger import logger
-from tasks.metrics import SchedulerService
+from src.logs.logger import logger
+from src.tasks.metrics import SchedulerService
 
 app = FastAPI()
 

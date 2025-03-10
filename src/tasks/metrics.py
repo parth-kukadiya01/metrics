@@ -2,7 +2,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 from datetime import datetime
 import asyncio
-from logs.logger import logger
+from src.logs.logger import logger
 
 
 class SchedulerService:

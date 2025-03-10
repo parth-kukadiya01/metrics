@@ -1,8 +1,8 @@
 from typing import Optional
 from fastapi import Query, HTTPException
 from sqlalchemy.orm import Session
-from pydantic import BaseModel
-from logics.logic import (
+from pydantic import BaseModel, field_validator
+from src.logics.logic import (
     get_age,
     get_device_type,
     get_region,
@@ -16,39 +16,48 @@ from datetime import datetime
 class MetricsValidation(BaseModel):
     start_date: Optional[str] = None
     end_date: Optional[str] = None
-    region_id: Optional[int] = Query(None, description="Region ID")
-    platform_id: Optional[int] = Query(None, description="Platform ID")
-    placement_id: Optional[int] = Query(None, ge=0, description="Placement ID")
-    device_type_id: Optional[int] = Query(None, ge=0, description="Device Type ID")
-    age_id: Optional[int] = Query(None, ge=0, description="Age ID")
-    gender_id: Optional[int] = Query(None, ge=0, description="Gender ID")
-    min_impressions: Optional[int] = Query(None, ge=0, description="Min Impressions")
-    max_cost: Optional[float] = Query(None, gt=0, description="Maximum cost")
+    region_id: Optional[int] = None
+    platform_id: Optional[int] = None
+    placement_id: Optional[int] = None
+    device_type_id: Optional[int] = None
+    age_id: Optional[int] = None
+    gender_id: Optional[int] = None
+    min_impressions: Optional[int] = None
+    max_cost: Optional[float] = None
     limit: int = Query(100, ge=1, le=1000, description="Number of records to return")
     offset: int = Query(0, ge=0, description="Number of records to skip")
 
+    @field_validator("region_id", "platform_id", "placement_id", "device_type_id", "age_id", "gender_id", "min_impressions", "max_cost",  mode="before")
+    @classmethod
+    def validate_positive_integer(cls, value, field):
+        if value is not None :
+            try:
+                if field.field_name == "max_cost":
+                    if not isinstance(value, float) or float(value) <= 0:
+                        raise ValueError
+                if not isinstance(value, int) or value <= 0:
+                    raise ValueError
+            except ValueError:
+                raise HTTPException(
+                    status_code=400,
+                    detail={"error": f"Invalid value for {field.field_name}. Expected a positive integer/float."}
+                )
+        return value
+
+    @field_validator("start_date", "end_date", mode="after")
+    @classmethod
+    def validate_date_format(cls, value, field):
+        if value:
+            try:
+                return datetime.strptime(value, "%Y-%m-%d").date()
+            except ValueError:
+                raise HTTPException(
+                    status_code=400,
+                    detail={"error": f"Invalid date format for {field.field_name}. Use YYYY-MM-DD."},
+                )
+        return value
+
     def validate_fields(self, db: Session):
-        try:
-            start_date_obj = (
-                datetime.strptime(self.start_date, "%Y-%m-%d").date()
-                if self.start_date
-                else None
-            )
-            end_date_obj = (
-                datetime.strptime(self.end_date, "%Y-%m-%d").date()
-                if self.end_date
-                else None
-            )
-        except ValueError:
-            raise HTTPException(
-                status_code=400, detail="Invalid date format. Use YYYY-MM-DD."
-            )
-
-        if start_date_obj and end_date_obj and start_date_obj > end_date_obj:
-            raise HTTPException(
-                status_code=400, detail="Start date must be before end date."
-            )
-
         if self.region_id is not None:
             get_region(self.region_id, db)
         if self.platform_id is not None:
@@ -78,4 +87,4 @@ class AdMetricsResponse(BaseModel):
     likes: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True  # Pydantic v2 replacement for `orm_mode`

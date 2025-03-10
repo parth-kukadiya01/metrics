@@ -1,5 +1,5 @@
 import logging
-from core.settings import settings
+from src.core.settings import settings
 
 def setup_logger():
     logging.basicConfig(

@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from core.database import get_db
-from logics.metrics import fetch_ad_metrics
-from logs.logger import logger
-from schemas.metrics import MetricsValidation
+from src.core.database import get_db
+from src.logics.metrics import fetch_ad_metrics
+from src.logs.logger import logger
+from src.schemas.metrics import MetricsValidation
 
 router = APIRouter()
 
